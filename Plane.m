@@ -4,17 +4,17 @@ classdef Plane
     properties
         %Defined heading (in degrees), altitude, velocity and initial
         %position [x y z].
-        heading, alt, vel, ini_pos;
+        heading, alt, vel, pos;
         
     end
     
     methods
-        function obj = Plane(heading, altitude, velocity, initial_position)
+        function obj = Plane(heading, altitude, velocity, position)
             %Constructor
             obj.heading = heading;
             obj.alt = altitude;
             obj.vel = velocity;
-            obj.ini_pos = initial_position;
+            obj.pos = position;
         end
         
         function [current_position] = translate(Plane, curr_pos)
