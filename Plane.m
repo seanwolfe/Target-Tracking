@@ -31,9 +31,21 @@ classdef Plane
             %iteration
             dx = Plane.vel*cosd(Plane.heading);
             pos = [dx dy dz];
-            %update the currnt position with the calculated translation
+            
+            %update the current position with the calculated translation
             curr_pos = curr_pos + pos;
             current_position = curr_pos;
+        end
+        
+        function [noisy_pos] = gen_p_noise(Plane)
+            %generates the noisy position of the plane at a certain
+            %iteration with respect to the true positon
+            
+            %noise vector, using randn
+            noise = [10/3*randn(size(Plane.pos(1))) 10/3*randn(size(Plane.pos(2))) 10/3*randn(size(Plane.pos(3)))];
+            
+            %add the noise to the true position
+            noisy_pos = Plane.pos + noise;
         end
     end 
 end

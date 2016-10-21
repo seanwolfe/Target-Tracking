@@ -30,9 +30,14 @@ classdef Camera
         %that image_width/height = Distance from Ground *
         %                          horizontal/vertical sensor length/focal length
         function [rect] = project_image(Camera, Plane)
+            
+            %projection of the camera frame onto the search area
             image = [Plane.alt*Camera.sensor_x/Camera.f; Plane.alt*Camera.sensor_y/Camera.f];
             halfx = image(1)/2;
             halfy = image(2)/2;
+            
+            %if the plane is at the center of the rectangle (i.e camera poiting straight down), 
+            %p1,p2,p3,p4 are the vertices of the rectangle 
             p1 = [(Plane.pos(1)-halfx) (Plane.pos(2)+halfy) 0];
             p2 = [(Plane.pos(1)+halfx) (Plane.pos(2)+halfy) 0];
             p3 = [(Plane.pos(1)+halfx) (Plane.pos(2)-halfy) 0];
