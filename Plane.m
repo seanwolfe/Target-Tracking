@@ -42,7 +42,7 @@ classdef Plane
             %iteration with respect to the true positon
             
             %noise vector, using randn
-            noise = [10/3*randn(size(Plane.pos(1))) 10/3*randn(size(Plane.pos(2))) 10/3*randn(size(Plane.pos(3)))];
+            noise = 4*[randn(size(Plane.pos(1))) randn(size(Plane.pos(2))) randn(size(Plane.pos(3)))];
             
             %add the noise to the true position
             noisy_pos = Plane.pos + noise;

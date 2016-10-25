@@ -2,10 +2,16 @@ function [] = main()
 % This function creates a simplified simulation environment for the
 % AUVSI_SUAS drone competitition
 
+%Sampling Period (in seconds)
+t = 1;
+
+%Simlulation Time
+end_time = 10;
+
 %Create a plane with:
     %an initial heading of: 0
     %an altitude of: 200ft
-    %a velocity of: 100 (m per instance k)
+    %a velocity of: 100 (m per instance s)
     %and an initial position of: [x, y, z] = [0, 0, 200]
 plane1 = Plane(0, 200, 100,[0 0 200]);
 
@@ -32,13 +38,15 @@ noisy_targets = gen_t_noise(area1);
 
 grid on
 
-for k = 1:10
+
+
+for k = 1:t:end_time
     %If first iteration, set position to the initial position of the plane
     if k == 1
         
         %this position2 variable hold the true positions of the plane
         position2 = plane1.pos;
-        
+        noisy_pos2 = gen_p_noise(plane1);
         %calculate the field of view of the camera
         fov = project_image(cam1, plane1);
         
@@ -53,6 +61,10 @@ for k = 1:10
         plot3(fov(:,1), fov(:,2), fov(:,3), ':')
         
     end
+    
+    %Plane velocity
+    plane1.vel = 10*k;
+    
     %Otherwise ask for next heading
     plane1.heading = input('What is the next heading in degrees');
     
@@ -62,19 +74,24 @@ for k = 1:10
     
     %add noise to the position
     noisy_pos = gen_p_noise(plane1);
+    noisy_pos2 = [noisy_pos2; noisy_pos];
     %Calculate field of view
     fov = project_image(cam1, plane1);
-   
+    
+    hold off
+    %plot field of view
+    plot3(fov(:,1), fov(:,2), fov(:,3), ':');
+    hold on
+    grid on
     %plot true (x) and noisy targets (.)   
     plot3(area1.targets(1,:),area1.targets(2,:), zeros(num_targets),'x')
     plot3(noisy_targets(1,:), noisy_targets(2,:), zeros(num_targets),'.')
     
     %plot position and position with noise
     plot3(position2(:,1), position2(:,2), position2(:,3))
-    plot3(noisy_pos(1), noisy_pos(2), noisy_pos(3), 'o')
+    plot3(noisy_pos2(:,1), noisy_pos2(:,2), noisy_pos2(:,3), 'o')
     
-    %plot field of view
-    plot3(fov(:,1), fov(:,2), fov(:,3), ':');
+    
     
 end
 
