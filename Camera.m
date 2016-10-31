@@ -38,12 +38,26 @@ classdef Camera
             
             %if the plane is at the center of the rectangle (i.e camera poiting straight down), 
             %p1,p2,p3,p4 are the vertices of the rectangle 
-            p1 = [(Plane.pos(1)-halfx) (Plane.pos(2)+halfy) 0];
-            p2 = [(Plane.pos(1)+halfx) (Plane.pos(2)+halfy) 0];
-            p3 = [(Plane.pos(1)+halfx) (Plane.pos(2)-halfy) 0];
-            p4 = [(Plane.pos(1)-halfx) (Plane.pos(2)-halfy) 0];
+            
+            %Transformation Matrix
+            trans = [cosd(Plane.heading) -sind(Plane.heading) Plane.pos(1); sind(Plane.heading) cosd(Plane.heading) Plane.pos(2); 0 0 1];
+            
+            %Generate camera frame relative to plane
+            p1 = [-halfx halfy 1];
+            p2 = [halfx halfy 1];
+            p3 = [halfx -halfy 1];
+            p4 = [-halfx -halfy 1];
             p5 = [Plane.pos(1) Plane.pos(2) Plane.pos(3)];
-            rect = [p5; p1; p2; p5; p3; p2; p5; p4; p1; p4; p3];
+            
+            %Transform camera frame to world
+            p1t = trans*p1';
+            p2t = trans*p2';
+            p3t = trans*p3';
+            p4t = trans*p4';
+            
+            
+            
+            rect = [p5; p1t'; p2t'; p5; p3t'; p2t'; p5; p4t'; p1t'; p4t'; p3t'];
             
         
         end

@@ -34,7 +34,7 @@ num_targets = input('Number of Targets:');
 %Generate Targets Randomly in search area
 area1.targets = area1.gen_targets(num_targets);
 %Generate Targest with noise
-noisy_targets = gen_t_noise(area1);
+%noisy_targets = gen_t_noise(area1);
 
 grid on
 
@@ -54,7 +54,7 @@ for k = 1:t:end_time
         %plot the true target locations
         plot3(area1.targets(1,:),area1.targets(2,:), zeros(num_targets),'x')
         %plot the noisy target locations
-        plot3(noisy_targets(1,:), noisy_targets(2,:), zeros(num_targets),'.')
+        %plot3(noisy_targets(1,:), noisy_targets(2,:), zeros(num_targets),'.')
         %plot the plane position
         plot3(plane1.pos(1),plane1.pos(2),plane1.pos(3), 'o')
         %plot the field of view
@@ -63,7 +63,7 @@ for k = 1:t:end_time
     end
     
     %Plane velocity
-    plane1.vel = 10*k;
+    plane1.vel = 100;
     
     %Otherwise ask for next heading
     plane1.heading = input('What is the next heading in degrees');
@@ -85,7 +85,7 @@ for k = 1:t:end_time
     grid on
     %plot true (x) and noisy targets (.)   
     plot3(area1.targets(1,:),area1.targets(2,:), zeros(num_targets),'x')
-    plot3(noisy_targets(1,:), noisy_targets(2,:), zeros(num_targets),'.')
+    %plot3(noisy_targets(1,:), noisy_targets(2,:), zeros(num_targets),'.')
     
     %plot position and position with noise
     plot3(position2(:,1), position2(:,2), position2(:,3))

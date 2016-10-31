@@ -47,6 +47,18 @@ classdef Plane
             %add the noise to the true position
             noisy_pos = Plane.pos + noise;
         end
+        
+        function [frame] = gen_ref_frame(Plane)
+            
+            %x
+            x = [1 0 0];
+            %y
+            y = [0 1 0];
+            %z
+            z = [0 0 1];
+            
+            
+        end
     end 
 end
 
