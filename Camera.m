@@ -12,7 +12,7 @@ classdef Camera
     
     properties
         %sensor_x is horizontal, sensor_y is vertical
-        sensor_x, sensor_y, f, res;
+        sensor_x, sensor_y, f, res, fov;
     end
     
     methods
@@ -22,6 +22,7 @@ classdef Camera
             obj.sensor_y = sensor_y;
             obj.f = focal_length;
             obj.res = resolution;
+      
         end
         
         %project_image, determines the field of view for a certain camera
@@ -29,25 +30,26 @@ classdef Camera
         %It returns the image projected onto the ground. It uses the fact
         %that image_width/height = Distance from Ground *
         %                          horizontal/vertical sensor length/focal length
-        function [rect] = project_image(Camera, Plane)
+        function [rect, fov] = project_image(Camera, Plane)
             
             %projection of the camera frame onto the search area
-            image = [Plane.alt*Camera.sensor_x/Camera.f; Plane.alt*Camera.sensor_y/Camera.f];
-            halfx = image(1)/2;
-            halfy = image(2)/2;
+            fov = [Plane.alt*Camera.sensor_x/Camera.f; Plane.alt*Camera.sensor_y/Camera.f];
+            halfx = fov(1)/2;
+            halfy = fov(2)/2;
+            
             
             %if the plane is at the center of the rectangle (i.e camera poiting straight down), 
             %p1,p2,p3,p4 are the vertices of the rectangle 
             
             %Transformation Matrix
-            trans = [cosd(Plane.heading) -sind(Plane.heading) Plane.pos(1); sind(Plane.heading) cosd(Plane.heading) Plane.pos(2); 0 0 1];
+            trans = [cosd(Plane.heading) -sind(Plane.heading) Plane.currpos(1); sind(Plane.heading) cosd(Plane.heading) Plane.currpos(2); 0 0 1];
             
             %Generate camera frame relative to plane
             p1 = [-halfx halfy 1];
             p2 = [halfx halfy 1];
             p3 = [halfx -halfy 1];
             p4 = [-halfx -halfy 1];
-            p5 = [Plane.pos(1) Plane.pos(2) Plane.pos(3)];
+            p5 = [Plane.currpos(1) Plane.currpos(2) Plane.currpos(3)];
             
             %Transform camera frame to world
             p1t = trans*p1';
@@ -62,6 +64,5 @@ classdef Camera
         
         end
     end
-    
 end
 

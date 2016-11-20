@@ -28,13 +28,20 @@ cam1 = Camera(5.76, 4.29,[4096 2160], 8);
     %Dimensions x,y: 1000m,1000m
 area1 = Search_Area(1000, 1000);
 
+
 %Enter number of targets
 num_targets = input('Number of Targets:');
-
+%num_targets = 3
+%area1.targets = [50 50 50; 0 50 150];
 %Generate Targets Randomly in search area
 area1.targets = area1.gen_targets(num_targets);
+
+
 %Generate Targest with noise
 %noisy_targets = gen_t_noise(area1);
+
+%Create a solver to solve the simulation
+solv1 = Solver();
 
 grid on
 
@@ -45,22 +52,37 @@ for k = 1:t:end_time
     if k == 1
         
         %this position2 variable hold the true positions of the plane
-        position2 = plane1.pos;
-        noisy_pos2 = gen_p_noise(plane1);
+        position2 = plane1.currpos;
+        [noisy_pos2, plane1.ncurrpos] = gen_p_noise(plane1, plane1.currpos);
+                
         %calculate the field of view of the camera
-        fov = project_image(cam1, plane1);
+        [fov, cam1.fov] = project_image(cam1, plane1);
+        
+        h = create_h(10, cam1, plane1);
+        h
+        %solve for the pixel coordinates of the targets in the camera frame
+        solv1.target_pixels = pixel_from_target(solv1, cam1, plane1, area1);
+        solv1.target_pixels;
+        
+        %Solve for the target locations from pixel coordinates
+        solv1.states = target_from_pixel(solv1, cam1, plane1);
+        solv1.states;
         
         hold on
+        
         %plot the true target locations
         plot3(area1.targets(1,:),area1.targets(2,:), zeros(num_targets),'x')
+        
         %plot the noisy target locations
         %plot3(noisy_targets(1,:), noisy_targets(2,:), zeros(num_targets),'.')
+        
         %plot the plane position
-        plot3(plane1.pos(1),plane1.pos(2),plane1.pos(3), 'o')
+        plot3(plane1.currpos(1),plane1.currpos(2),plane1.currpos(3), 'o')
+        
         %plot the field of view
         plot3(fov(:,1), fov(:,2), fov(:,3), ':')
         
-    end
+    else
     
     %Plane velocity
     plane1.vel = 100;
@@ -69,20 +91,35 @@ for k = 1:t:end_time
     plane1.heading = input('What is the next heading in degrees');
     
     %Calculate the next position
-    plane1.pos = plane1.translate(plane1.pos);
-    position2 = [position2; plane1.pos];
+    [plane1.currpos, plane1.prevpos] = plane1.translate(plane1.currpos);
+    position2 = [position2; plane1.currpos];
     
     %add noise to the position
-    noisy_pos = gen_p_noise(plane1);
-    noisy_pos2 = [noisy_pos2; noisy_pos];
+    [plane1.ncurrpos, plane1.nprevpos] = gen_p_noise(plane1, plane1.ncurrpos);
+    noisy_pos2 = [noisy_pos2; plane1.ncurrpos];
+        
     %Calculate field of view
-    fov = project_image(cam1, plane1);
+    [fov, cam1.fov] = project_image(cam1, plane1);
+    
+    h = create_h(10, cam1, plane1);
+    h
+    
+    %solve the pixel coordinates of the targets in the camera frame
+    solv1.target_pixels = pixel_from_target(solv1, cam1, plane1, area1);
+    solv1.target_pixels
+    
+    %Solve for the target locations from pixel coordinates
+    solv1.states = target_from_pixel(solv1, cam1, plane1);
+    solv1.states
     
     hold off
+    
     %plot field of view
     plot3(fov(:,1), fov(:,2), fov(:,3), ':');
+    
     hold on
     grid on
+    
     %plot true (x) and noisy targets (.)   
     plot3(area1.targets(1,:),area1.targets(2,:), zeros(num_targets),'x')
     %plot3(noisy_targets(1,:), noisy_targets(2,:), zeros(num_targets),'.')
@@ -92,7 +129,7 @@ for k = 1:t:end_time
     plot3(noisy_pos2(:,1), noisy_pos2(:,2), noisy_pos2(:,3), 'o')
     
     
-    
+    end
 end
 
 end

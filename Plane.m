@@ -4,7 +4,7 @@ classdef Plane
     properties
         %Defined heading (in degrees), altitude, velocity and initial
         %position [x y z].
-        heading, alt, vel, pos;
+        heading, alt, vel, prevpos, currpos; nprevpos, ncurrpos
         
     end
     
@@ -14,10 +14,10 @@ classdef Plane
             obj.heading = heading;
             obj.alt = altitude;
             obj.vel = velocity;
-            obj.pos = position;
+            obj.currpos = position;
         end
         
-        function [current_position] = translate(Plane, curr_pos)
+        function [curr_pos, prev_pos] = translate(Plane, curr_pos)
             %Models Linear motion with possible change in direction
             %Creates a translation vector. Since altitude is assumed to be
             %constant, dz = 0. dy and dx correspond to the translation in x
@@ -33,32 +33,23 @@ classdef Plane
             pos = [dx dy dz];
             
             %update the current position with the calculated translation
-            curr_pos = curr_pos + pos;
-            current_position = curr_pos;
+            prev_pos = curr_pos;
+            curr_pos = prev_pos + pos;
+            
         end
         
-        function [noisy_pos] = gen_p_noise(Plane)
+        function [curr_noisy_pos, prev_noisy_pos] = gen_p_noise(Plane, curr_noisy_pos)
             %generates the noisy position of the plane at a certain
             %iteration with respect to the true positon
             
             %noise vector, using randn
-            noise = 4*[randn(size(Plane.pos(1))) randn(size(Plane.pos(2))) randn(size(Plane.pos(3)))];
+            noise = 4*[randn(size(Plane.currpos(1))) randn(size(Plane.currpos(2))) randn(size(Plane.currpos(3)))];
             
             %add the noise to the true position
-            noisy_pos = Plane.pos + noise;
+            prev_noisy_pos = curr_noisy_pos;
+            curr_noisy_pos = Plane.currpos + noise;
         end
         
-        function [frame] = gen_ref_frame(Plane)
-            
-            %x
-            x = [1 0 0];
-            %y
-            y = [0 1 0];
-            %z
-            z = [0 0 1];
-            
-            
-        end
     end 
 end
 

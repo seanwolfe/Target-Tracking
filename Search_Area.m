@@ -12,6 +12,7 @@ classdef Search_Area
             %Constructor. 
             obj.x_width = 1:1:x_width;
             obj.y_length =  1:1:y_length;
+            
         end
         
        function [targets] = gen_targets(Search_Area, num_targets)
@@ -61,7 +62,7 @@ classdef Search_Area
             noise_ty = 10/3*randn(size(Search_Area.targets(2,:)));
             
             %add noise to existing targets
-            noisy_targets = [(Search_Area.targets(1,:) + noise_tx); (Search_Area.targets(2,:) + noise_ty)]
+            noisy_targets = [(Search_Area.targets(1,:) + noise_tx); (Search_Area.targets(2,:) + noise_ty)];
        end
     end
 end
