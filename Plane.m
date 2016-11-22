@@ -26,10 +26,10 @@ classdef Plane
             dz = 0;
             %Distance in y = velocity in y * time elapsed (in our case, one
             %iteration
-            dy = Plane.vel*sind(Plane.heading);
+            dy = Plane.vel*sind(90-Plane.heading);
             %Distance in y = velocity in y * time elapsed (in our case, one
             %iteration
-            dx = Plane.vel*cosd(Plane.heading);
+            dx = Plane.vel*cosd(90-Plane.heading);
             pos = [dx dy dz];
             
             %update the current position with the calculated translation

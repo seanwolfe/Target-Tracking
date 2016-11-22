@@ -15,11 +15,14 @@ classdef Solver
             fov = Camera.fov;
             
             %set camera frame zero
-            zerox = Plane.currpos(1) - fov(1)/2;
-            zeroy = Plane.currpos(2) + fov(2)/2;
+            zerox = - fov(1)/2;
+            zeroy = fov(2)/2;
             
             %get pixel coordinates for current frame
             pixels = Solver.target_pixels;
+            
+            %Transformation Matrix
+            trans = [cosd(-Plane.heading) -sind(-Plane.heading) Plane.currpos(1); sind(-Plane.heading) cosd(-Plane.heading) Plane.currpos(2)]; 
                  
             %Calc x and y distance corresponding to x and y pixel
             %coordinates
@@ -33,24 +36,30 @@ classdef Solver
                     x_dis = fov(1)*pixels(1,i)/Camera.res(1);
                     y_dis = fov(2)*pixels(2,i)/Camera.res(2);
                     
-                    %Transform to world frame
+                    %Transform to plane frame
                     xtarget = x_dis + zerox;
                     ytarget = -y_dis + zeroy;
                     
-                    %store target
-                    targets = [xtarget; ytarget];
+                    %transform from plane frame to world frame
+                    target = [xtarget; ytarget; 1];
+                    target  = trans*target;
+                    target = target(1:2);
+                    targets = target;
                 else
                 
                 %Calculate distance of target from frame zero
                 x_dis = fov(1)*pixels(1,i)/Camera.res(1);
                 y_dis = fov(2)*pixels(2,i)/Camera.res(2);
                     
-                %Transform to world frame
+                %Transform to plane frame
                 xtarget = x_dis + zerox;
                 ytarget = -y_dis + zeroy;
-                    
-                %store target
-                target = [xtarget; ytarget];
+                
+                
+                %transform from plane frame to world frame
+                target = [xtarget; ytarget; 1];
+                target  = trans*target;
+                target = target(1:2);
                 targets = [targets target];
                 end
             end
@@ -63,10 +72,13 @@ classdef Solver
         function [target_pixels] = pixel_from_target(Solver, Camera, Plane, Search_Area)
             %Calc field of view
             fov = Camera.fov;
-            
+             
+            %Transformation Matrix
+            trans = inv([cosd(Plane.heading) sind(Plane.heading) Plane.currpos(1); -sind(Plane.heading) cosd(Plane.heading) Plane.currpos(2); 0 0 1]); 
+                        
             %camera frame zero
-            zerox = Plane.currpos(1) - fov(1)/2;
-            zeroy = Plane.currpos(2) + fov(2)/2;
+            zerox = -fov(1)/2;
+            zeroy = fov(2)/2;
             
             %Calc frame x limits
             leftx = Plane.currpos(1) - fov(1)/2;
@@ -89,9 +101,12 @@ classdef Solver
                         %If target is within the y limits of frame
                         if bottomy <= Search_Area.targets(2,i) && Search_Area.targets(2,i) <= topy
                             
+                            %Find x and y relative to plane
+                            xy_plane = trans*[Search_Area.targets(1,i); Search_Area.targets(2,i); 1];
+                            
                             %The x and y distances of the target relative to the zero of the frame
-                            x_dis = Search_Area.targets(1,i) - zerox;
-                            y_dis = -(Search_Area.targets(2,i) - zeroy);
+                            x_dis = xy_plane(1) - zerox;
+                            y_dis = -(xy_plane(2) - zeroy);
                             
                             %The corresponding x and y pixels of the target
                             pixel = [x_dis/fov(1)*Camera.res(1); y_dis/fov(2)*Camera.res(2)];
@@ -109,10 +124,12 @@ classdef Solver
                         %If target is within the y limits of frame
                         if bottomy <= Search_Area.targets(2,i) && Search_Area.targets(2,i) <= topy
                             
-                            %The x and y distances of the target relative to the zero
-                            %of the frame
-                            x_dis = Search_Area.targets(1,i) - zerox;
-                            y_dis = -(Search_Area.targets(2,i) - zeroy);
+                            %Find x and y relative to plane
+                            xy_plane = trans*[Search_Area.targets(1,i); Search_Area.targets(2,i); 1];
+                            
+                            %The x and y distances of the target relative to the zero of the frame
+                            x_dis = xy_plane(1) - zerox;
+                            y_dis = -(xy_plane(2) - zeroy);
                             
                             %The corresponding x and y pixels of the target
                             pixel = [x_dis/fov(1)*Camera.res(1); y_dis/fov(2)*Camera.res(2)];

@@ -42,7 +42,7 @@ classdef Camera
             %p1,p2,p3,p4 are the vertices of the rectangle 
             
             %Transformation Matrix
-            trans = [cosd(Plane.heading) -sind(Plane.heading) Plane.currpos(1); sind(Plane.heading) cosd(Plane.heading) Plane.currpos(2); 0 0 1];
+            trans = [cosd(-Plane.heading) -sind(-Plane.heading) Plane.currpos(1); sind(-Plane.heading) cosd(-Plane.heading) Plane.currpos(2); 0 0 1];
             
             %Generate camera frame relative to plane
             p1 = [-halfx halfy 1];

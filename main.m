@@ -30,11 +30,11 @@ area1 = Search_Area(1000, 1000);
 
 
 %Enter number of targets
-num_targets = input('Number of Targets:');
-%num_targets = 3
-%area1.targets = [50 50 50; 0 50 150];
+%num_targets = input('Number of Targets:');
+num_targets = 3;
+area1.targets = [50 50 -50; 50 -50 50];
 %Generate Targets Randomly in search area
-area1.targets = area1.gen_targets(num_targets);
+%area1.targets = area1.gen_targets(num_targets);
 
 
 %Generate Targest with noise
@@ -42,6 +42,8 @@ area1.targets = area1.gen_targets(num_targets);
 
 %Create a solver to solve the simulation
 solv1 = Solver();
+
+
 
 grid on
 
@@ -58,15 +60,17 @@ for k = 1:t:end_time
         %calculate the field of view of the camera
         [fov, cam1.fov] = project_image(cam1, plane1);
         
-        h = create_h(10, cam1, plane1);
-        h
         %solve for the pixel coordinates of the targets in the camera frame
         solv1.target_pixels = pixel_from_target(solv1, cam1, plane1, area1);
-        solv1.target_pixels;
+        solv1.target_pixels
         
         %Solve for the target locations from pixel coordinates
         solv1.states = target_from_pixel(solv1, cam1, plane1);
         solv1.states;
+        
+        h = create_h(2*num_targets, cam1, plane1);
+        ans = h*[50; 50; 50; -50; -50; 50; 1];
+        ans
         
         hold on
         
@@ -100,17 +104,18 @@ for k = 1:t:end_time
         
     %Calculate field of view
     [fov, cam1.fov] = project_image(cam1, plane1);
-    
-    h = create_h(10, cam1, plane1);
-    h
-    
+   
     %solve the pixel coordinates of the targets in the camera frame
     solv1.target_pixels = pixel_from_target(solv1, cam1, plane1, area1);
-    solv1.target_pixels
+    solv1.target_pixels;
     
     %Solve for the target locations from pixel coordinates
     solv1.states = target_from_pixel(solv1, cam1, plane1);
-    solv1.states
+    solv1.states;
+    
+    h = create_h(2*num_targets, cam1, plane1);
+    ans = h*[3470.2; 73; 3470.2; 2087; 625.8; 73];
+    ans
     
     hold off
     
