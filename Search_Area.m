@@ -4,7 +4,7 @@ classdef Search_Area
     
     properties
         %The x and y dimensions of the grid, the x and y target vectors
-        x_width, y_length, targets;
+        x_width, y_length, targets, obs_cov, id;
     end
     
     methods
@@ -52,18 +52,37 @@ classdef Search_Area
             end
        end
        
-       function [noisy_targets] = gen_t_noise(Search_Area)
-            %this function generates noisy targets from the true ones
-            
-            %noise in x
-            noise_tx = 10/3*randn(size(Search_Area.targets(1,:)));
-            
-            %noise in y
-            noise_ty = 10/3*randn(size(Search_Area.targets(2,:)));
-            
-            %add noise to existing targets
-            noisy_targets = [(Search_Area.targets(1,:) + noise_tx); (Search_Area.targets(2,:) + noise_ty)];
+       function[ids] = gen_target_ids(Search_Area, num_targets)
+           
+           id_list =['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+           ids = datasample(ids, num_targets);
+               
        end
+       
+       function[observation_covs] = gen_obs_cov(Search_Area, num_obs)
+           
+           observation_covs = [];
+           
+           %assign a covariance to each target
+           for i=1:1:num_obs
+               
+               %generate a random (ie value between 0 and 1) 2x2 covariance
+               %matrix with variance 50
+               temp = 5*rand(2,2);
+               %temporary to make pose def
+               cov = temp*temp';
+               observation_covs = cat(3, observation_covs, cov);
+                       
+           end
+           
+       end
+%        function [noisy_targets] = gen_t_noise(Search_Area)
+%             
+%             %this function generates noisy targets from the true ones
+%             noise = 10/3*randn(size(Search_Area.targets));
+%             noisy_targets = Search_Area.targets + noise;
+%             
+%        end
     end
 end
 

@@ -12,7 +12,7 @@ classdef Camera
     
     properties
         %sensor_x is horizontal, sensor_y is vertical
-        sensor_x, sensor_y, f, res, fov;
+        sensor_x, sensor_y, f, res, fov, nfov;
     end
     
     methods
@@ -50,6 +50,40 @@ classdef Camera
             p3 = [halfx -halfy 1];
             p4 = [-halfx -halfy 1];
             p5 = [Plane.currpos(1) Plane.currpos(2) Plane.currpos(3)];
+            
+            %Transform camera frame to world
+            p1t = trans*p1';
+            p2t = trans*p2';
+            p3t = trans*p3';
+            p4t = trans*p4';
+            
+            
+            
+            rect = [p5; p1t'; p2t'; p5; p3t'; p2t'; p5; p4t'; p1t'; p4t'; p3t'];
+            
+        
+        end
+         function [rect, fov] = project_image_noisy(Camera, Plane)
+            
+            %projection of the camera frame onto the search area            
+            fov = [Plane.ncurrpos(3)*Camera.sensor_x/Camera.f; Plane.ncurrpos(3)*Camera.sensor_y/Camera.f];
+            halfx = fov(1)/2;
+            halfy = fov(2)/2;
+            
+            %if the plane is at the center of the rectangle (i.e camera poiting straight down), 
+            %p1,p2,p3,p4 are the vertices of the rectangle 
+            
+            %Transformation Matrix using noisy readings
+            trans = [cosd(-Plane.nhead) -sind(-Plane.nhead) Plane.ncurrpos(1); sind(-Plane.nhead) cosd(-Plane.nhead) Plane.ncurrpos(2); 0 0 1];
+            
+            %Generate camera frame relative to plane
+            p1 = [-halfx halfy 1];
+            p2 = [halfx halfy 1];
+            p3 = [halfx -halfy 1];
+            p4 = [-halfx -halfy 1];
+            
+            %noisy plane position
+            p5 = [Plane.ncurrpos(1) Plane.ncurrpos(2) Plane.ncurrpos(3)];
             
             %Transform camera frame to world
             p1t = trans*p1';

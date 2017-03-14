@@ -4,7 +4,7 @@ classdef Plane
     properties
         %Defined heading (in degrees), altitude, velocity and initial
         %position [x y z].
-        heading, alt, vel, prevpos, currpos; nprevpos, ncurrpos
+        heading, alt, vel, prevpos, currpos; nprevpos, ncurrpos, nhead
         
     end
     
@@ -42,12 +42,26 @@ classdef Plane
             %generates the noisy position of the plane at a certain
             %iteration with respect to the true positon
             
-            %noise vector, using randn
-            noise = 4*[randn(size(Plane.currpos(1))) randn(size(Plane.currpos(2))) randn(size(Plane.currpos(3)))];
-            
+            %covariance assosiated with position estimate from pixhawk efk
+            r = [2.5 3 0.5; 3 2.25 3.75; 0.5 3.75 2.5];
+            %just to ensure the matrix is pos def, but in real
+            %implementation it is assumed
+            pos_cov = r*r';
+            %generate relevant samples from cov
+            L = chol(pos_cov);
+            noise = randn(1,3)*L;
+               
             %add the noise to the true position
             prev_noisy_pos = curr_noisy_pos;
             curr_noisy_pos = Plane.currpos + noise;
+        end
+        function [noisy_heading] = gen_h_noise(Plane)
+            
+            %heading variance in degrees
+            var = 10;
+            noise = randn(1)*sqrt(var);
+            noisy_heading = Plane.heading + noise;
+            
         end
         
     end 
