@@ -1,0 +1,4 @@
+Ids need to be different for each target
+Fuse overall
+Need a stop mechanism 
+Utm coordinates

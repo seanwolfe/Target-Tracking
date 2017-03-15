@@ -20,7 +20,7 @@ classdef Ellipse
             [eigenvec, eigenval ] = eig(Ellipse.cov);
 
             % Get the index of the largest eigenvector
-            [largest_eigenvec_ind_c, r] = find(eigenval == max(max(eigenval)));
+            [largest_eigenvec_ind_c, ~] = find(eigenval == max(max(eigenval)));
             largest_eigenvec = eigenvec(:, largest_eigenvec_ind_c);
             
             % Get the largest eigenvalue
@@ -29,10 +29,10 @@ classdef Ellipse
             % Get the smallest eigenvector and eigenvalue
             if(largest_eigenvec_ind_c == 1)
                 smallest_eigenval = max(eigenval(:,2));
-                smallest_eigenvec = eigenvec(:,2);
+                %smallest_eigenvec = eigenvec(:,2);
             else
                 smallest_eigenval = max(eigenval(:,1));
-                smallest_eigenvec = eigenvec(1,:);
+                %smallest_eigenvec = eigenvec(1,:);
             end
             
             % Calculate the angle between the x-axis and the largest eigenvector
@@ -63,8 +63,8 @@ classdef Ellipse
             r_ellipse = [ellipse_x_r;ellipse_y_r]' * R;
             
             % Draw the error ellipse
-            x = r_ellipse(:,1) + X0;
-            y = r_ellipse(:,2) + Y0;
+            x = r_ellipse(:,1); 
+            y = r_ellipse(:,2);
             %plot(r_ellipse(:,1) + X0,r_ellipse(:,2) + Y0,'-')
             %hold on;
         end

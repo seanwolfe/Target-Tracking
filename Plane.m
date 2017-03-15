@@ -4,7 +4,7 @@ classdef Plane
     properties
         %Defined heading (in degrees), altitude, velocity and initial
         %position [x y z].
-        heading, alt, vel, prevpos, currpos; nprevpos, ncurrpos, nhead
+        heading, alt, vel, currpos; nprevpos, ncurrpos, nhead
         
     end
     
@@ -17,7 +17,7 @@ classdef Plane
             obj.currpos = position;
         end
         
-        function [curr_pos, prev_pos] = translate(Plane, curr_pos)
+        function [curr_pos] = translate(Plane)
             %Models Linear motion with possible change in direction
             %Creates a translation vector. Since altitude is assumed to be
             %constant, dz = 0. dy and dx correspond to the translation in x
@@ -33,37 +33,10 @@ classdef Plane
             pos = [dx dy dz];
             
             %update the current position with the calculated translation
-            prev_pos = curr_pos;
-            curr_pos = prev_pos + pos;
+            curr_pos = Plane.currpos + pos;
             
         end
-        
-        function [curr_noisy_pos, prev_noisy_pos] = gen_p_noise(Plane, curr_noisy_pos)
-            %generates the noisy position of the plane at a certain
-            %iteration with respect to the true positon
-            
-            %covariance assosiated with position estimate from pixhawk efk
-            r = [2.5 3 0.5; 3 2.25 3.75; 0.5 3.75 2.5];
-            %just to ensure the matrix is pos def, but in real
-            %implementation it is assumed
-            pos_cov = r*r';
-            %generate relevant samples from cov
-            L = chol(pos_cov);
-            noise = randn(1,3)*L;
-               
-            %add the noise to the true position
-            prev_noisy_pos = curr_noisy_pos;
-            curr_noisy_pos = Plane.currpos + noise;
-        end
-        function [noisy_heading] = gen_h_noise(Plane)
-            
-            %heading variance in degrees
-            var = 10;
-            noise = randn(1)*sqrt(var);
-            noisy_heading = Plane.heading + noise;
-            
-        end
-        
+                
     end 
 end
 
