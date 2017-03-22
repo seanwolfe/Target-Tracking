@@ -4,7 +4,7 @@ classdef Search_Area
     
     properties
         %The x and y dimensions of the grid, the x and y target vectors
-        x_width, y_length, targets, ids;
+        x_width, y_length, targets, ids, target_indices;
     end
     
     methods

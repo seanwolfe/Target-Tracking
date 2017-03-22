@@ -80,9 +80,61 @@ classdef Solver
             k = ell1.cov/(ell1.cov+ell2.cov);
             
             newcov = ell1.cov-k*ell1.cov;
-            newmean = ell1.mean'+k*(ell2.mean-ell1.mean)';
+            newmean = ell1.mean+k*(ell2.mean-ell1.mean);
             
             ellipse = Ellipse(newcov, newmean, newconf);
+            
+        end
+        
+        function [mean_groups] = estimates(Solver)
+   
+            %iterate through ids
+            id_groups = Solver.id_list(1);
+            cov_groups = Solver.cvcov(:,:,1);
+            mean_groups = Solver.observations(:,1);
+            
+            Solver.id_list
+            for i=2:1:size(Solver.id_list,2)
+                
+                %iterate through already seen ids
+                for j=1:1:size(id_groups,2)
+                    
+                    count = 0;
+                    
+                    %already an existing group of ids
+                    if Solver.id_list(:,i) == id_groups(:,j)
+                        %get mean, cov, conf of group up to now
+                        ell1 = Ellipse(cov_groups(:,:,j), mean_groups(:,j), 2.554);
+                        %get mean, cov, conf of id to fuse
+                        ell2 = Ellipse(Solver.cvcov(:,:,i), Solver.observations(:,i), 2.554);
+                        %fuse
+                        ell3 = Solver.fuse(ell1, ell2, 2.554);
+                        
+                        cov_groups(:,:,j) = ell3.cov;
+                        mean_groups(:,j) = ell3.mean;
+                        
+                        %it has already seen a target of this type
+                        count = 1;
+                        
+                        break;
+                    end
+                end
+                %this type of target has not been seen yet
+                if count == 0
+                    id_groups = [id_groups Solver.id_list(:,i)]
+                    cov_groups = cat(3,cov_groups, Solver.cvcov(:,:,i));
+                    mean_groups = [mean_groups Solver.observations(:,i)];
+                end
+            end
+        end
+        
+        function[id_list] = getids(Solver, Search_Area)
+            id_list = blanks(size(Solver.target_pixels,2));
+            
+            for i=1:1:size(Search_Area.target_indices,2)
+                id_list(i) = Search_Area.ids(Search_Area.target_indices(i));
+            end
+            
             
         end
     end

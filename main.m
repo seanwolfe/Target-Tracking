@@ -6,7 +6,7 @@ function [] = main()
 t = 1;
 
 %Simlulation Time
-end_time = 100;
+end_time = 20;
 
 %Create a plane with:
     %an initial heading of: 0
@@ -39,11 +39,7 @@ num_targets = input('Number of Targets:');
 %Generate Targets Randomly in search area
 area1.targets = generate.targets(area1, num_targets);
 %Generate target ids
-%for i=1:1:25
 area1.ids = generate.target_ids(num_targets);
-area1.ids
-%end
-area1.targets;
 
 %Create a solver to solve the simulation
     %First holds the observation means
@@ -84,20 +80,17 @@ for k = 1:t:end_time
     plot.noisy_position = [plot.noisy_position; plane1.ncurrpos];
         
     %Calculate field of view
-    [~, cam1.fov] = cam1.project_image(plane1);
+    [plot.fov, cam1.fov] = cam1.project_image(plane1);
     
     %Add noise to field of view
-    [plot.fov, cam1.nfov] = addnoiseto.fov(cam1, plane1);
+    [~, cam1.nfov] = addnoiseto.fov(cam1, plane1);
    
     %generate the pixel coordinates of the targets in the camera frame
-    solv1.target_pixels = generate.pixel_coordinates(cam1, plane1, area1);
-    solv1.target_pixels;
+    %also returns the target indices for that iteration
+    [solv1.target_pixels, area1.target_indices] = generate.pixel_coordinates(cam1, plane1, area1);
     
     %number of observations (points of interest) for this iteration
     num_obs = size(solv1.target_pixels, 2);
-    
-    size(solv1.target_pixels,2)
-    solv1.target_pixels
     
     %Solve for the target locations from pixel coordinates
     solv1.states = solv1.target_from_pixel(cam1, plane1);
@@ -105,6 +98,10 @@ for k = 1:t:end_time
     
     %if there are observations to plot
     if num_obs ~= 0
+        
+        %get the ids for this iteration
+        ids_i = solv1.getids(area1);
+        solv1.id_list = [solv1.id_list ids_i];
         
         %generate simulated covariances for these observations
         obs_cov_i = generate.observation_covariance(num_obs);
@@ -117,10 +114,8 @@ for k = 1:t:end_time
         
         %use that to add noise to the target pixels
         solv1.target_pixels = addnoiseto.pixels(solv1, obs_cov_i, num_obs);
-        
-        
+              
     end 
-    
     
     %append all observations
     solv1.observations = [solv1.observations solv1.states];
@@ -132,3 +127,20 @@ for k = 1:t:end_time
     plot.simulation(area1, solv1, total_obs);
      
 end
+
+%Compute final estimates
+solv1.states = solv1.estimates();
+
+%Sort Targets
+[~, J] = sort(area1.targets(1,:));
+area1.targets = area1.targets(:,J);
+Your_Targets = area1.targets
+
+%Sort Estimates
+[~, I] = sort(solv1.states(1,:));
+solv1.states = solv1.states(:,I);
+Your_Estimates = solv1.states
+
+plot3(solv1.states(1,:), solv1.states(2,:), zeros(size(solv1.states,2)), '*');
+
+

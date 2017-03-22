@@ -36,12 +36,12 @@ classdef Plotter
             end
             
             %plot true (x) and noisy targets (.)
-            plot3(Search_Area.targets(1,:),Search_Area.targets(2,:), zeros(size(Search_Area.targets,2)),'x')
+            plot3(Search_Area.targets(1,:),Search_Area.targets(2,:), zeros(size(Search_Area.targets,2)),'x');
                         
             %plot position and position with noise
-            plot3(Plotter.position(:,1), Plotter.position(:,2), Plotter.position(:,3))
-            plot3(Plotter.noisy_position(:,1), Plotter.noisy_position(:,2), Plotter.noisy_position(:,3), 'o')
-            
+            plot3(Plotter.position(:,1), Plotter.position(:,2), Plotter.position(:,3));
+            plot3(Plotter.noisy_position(:,1), Plotter.noisy_position(:,2), Plotter.noisy_position(:,3), 'o');
+                        
         end
     end
     

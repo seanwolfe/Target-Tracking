@@ -16,8 +16,7 @@ classdef Generator
                         
             %generate an ellipse for each target observed this iteration
             for i=1:1:num_obs
-                
-                size(Solver.states)
+               
                 %create an ellipse, with covariance, mean, and confidence
                 ell_i = Ellipse(obs_cov_i(:,:,i), Solver.states(:,i), 2.554);
                 
@@ -49,7 +48,7 @@ classdef Generator
                 
                 %generate a random (ie value between 0 and 1) 2x2 covariance
                 %matrix with variance 5
-                temp = 50*rand(2,2);
+                temp = 5*rand(2,2);
                 %temporary to make pose def
                 cov = temp*temp';
                 observation_covs = cat(3, observation_covs, cov);
@@ -59,31 +58,14 @@ classdef Generator
         
         function[ids] = target_ids(~, num_targets)
             
-            id_list =['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+            id_list = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+            
+            index = randperm(size(id_list,2), num_targets);
             
             ids = blanks(num_targets);
             
-            %make num_targets targets
-            for i = 1:1:num_targets
-                %if first target
-                if i == 1
-                    %store a random id directly
-                    ids(i) = datasample(id_list,1);
-                else
-                    %otherwise generate random id
-                    id = datasample(id_list,1);
-                    
-                    %check if this id exists already
-                    size(ids)
-                    for j=1:1:size(ids,2)
-                        %if it does, redo
-                        if id == ids(j)
-                            i = i-1;
-                        end
-                    end
-                    %add to list of targets
-                    ids(i) = id;  
-                end
+            for i=1:1:num_targets
+                ids(i) = id_list(index(i));
             end
         end
         
@@ -127,7 +109,10 @@ classdef Generator
         end
         
         %solve for target pixel coordinates from target positions
-        function [target_pixels] = pixel_coordinates(~, Camera, Plane, Search_Area)
+        function [target_pixels, target_indices] = pixel_coordinates(~, Camera, Plane, Search_Area)
+            
+            target_indices = [];
+            
             %Calc field of view
             fov = Camera.fov;
             
@@ -167,6 +152,8 @@ classdef Generator
                             %The corresponding x and y pixels of the target
                             pixel = [x_dis/fov(1)*Camera.res(1); y_dis/fov(2)*Camera.res(2)];
                             
+                            target_indices = [target_indices i];
+                            
                             %store pixel coordinates
                             target_pixels = pixel;
                             
@@ -182,6 +169,8 @@ classdef Generator
                             
                             %The corresponding x and y pixels of the target
                             pixel = [x_dis/fov(1)*Camera.res(1); y_dis/fov(2)*Camera.res(2)];
+                            
+                            target_indices = [target_indices i];
                             
                             %store all pixel coordinates
                             %remove noise if you want to see true pixel

@@ -1,4 +1,5 @@
-Ids need to be different for each target
-Fuse overall
-Need a stop mechanism 
+
+Covariance matrices are not in meters(your covariance matrices are in 1000 of pixel...pretty big error)
+Fusing correctly (fix above first)
 Utm coordinates
+targets can be the same theoretically, small chances though
