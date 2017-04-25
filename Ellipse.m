@@ -1,13 +1,14 @@
 classdef Ellipse
     %This class contains a function for visualizing the error ellipse
-    %also, contains algo for merging multivariate gaussians given
-    %covariance and mean
+    %also, contains algo drawing an ellipse given
+    %covariance, mean and confidence
     
     properties
         cov, mean, conf
     end
     
     methods
+        %constructor
         function obj = Ellipse(covariance, mean, confidence)
             obj.cov = covariance;
             obj.mean = mean;

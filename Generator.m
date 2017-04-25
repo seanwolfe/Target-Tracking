@@ -1,12 +1,13 @@
 classdef Generator
-    %UNTITLED Summary of this class goes here
-    %   Detailed explanation goes here
+    %This class takes care of generating a simulation environment. It
+    %contains functions for the ellipse points, covariance, target ids,
+    %targets and pixel coordinates
     
     properties
     end
     
     methods
-        function [ell_x, ell_y] = ellipse_points(~, Solver, obs_cov_i, num_obs, Camera)
+        function [ell_x, ell_y] = ellipse_points(~, Solver, obs_cov_i, num_obs)
             %this function produces points that can be plotted as an error
             %ellipse
             
@@ -16,17 +17,13 @@ classdef Generator
                         
             %generate an ellipse for each target observed this iteration
             for i=1:1:num_obs
-               
+                              
                 %create an ellipse, with covariance, mean, and confidence
-                ell_i = Ellipse(obs_cov_i(:,:,i), Solver.states(:,i), 2.554);
+                ell_i = Ellipse(obs_cov_i(:,:,i), Solver.states(:,i), 4);
                 
                 %generate the ellipse in pixels
-                [ell_ix_p, ell_iy_p] = ell_i.errorellipse();
-                
-                %Convert to meters
-                ell_ix = ell_ix_p*Camera.fov(1)/Camera.res(1);
-                ell_iy = ell_iy_p*Camera.fov(2)/Camera.res(2);
-                
+                [ell_ix, ell_iy] = ell_i.errorellipse();
+                                
                 %center ellipse
                 ell_ix = ell_ix + ell_i.mean(1);
                 ell_iy = ell_iy + ell_i.mean(2);
@@ -40,6 +37,8 @@ classdef Generator
         end
         
         function[observation_covs] = observation_covariance(~, num_obs)
+            %the function generates the associated covariance for each
+            %observatio made during the current iteration
             
             observation_covs = [];
             
@@ -48,15 +47,17 @@ classdef Generator
                 
                 %generate a random (ie value between 0 and 1) 2x2 covariance
                 %matrix with variance 5
-                temp = 5*rand(2,2);
+                temp = [200 0; 0 15];
                 %temporary to make pose def
-                cov = temp*temp';
-                observation_covs = cat(3, observation_covs, cov);
+                %cov = temp*temp';
+                observation_covs = cat(3, observation_covs, temp);
                 
             end
         end
         
         function[ids] = target_ids(~, num_targets)
+            %generates the target ids by choosing a permutation from the
+            %alphabet according to the number of targets
             
             id_list = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
             
@@ -117,7 +118,7 @@ classdef Generator
             fov = Camera.fov;
             
             %Transformation Matrix
-            trans = inv([cosd(-Plane.heading) -sind(-Plane.heading) Plane.currpos(1); sind(-Plane.heading) cosd(-Plane.heading) Plane.currpos(2); 0 0 1]);
+            trans = inv([cosd(Plane.heading) sind(Plane.heading) Plane.currpos(1); -sind(Plane.heading) cosd(Plane.heading) Plane.currpos(2); 0 0 1]);
             
             %camera frame zero
             zerox = -fov(1)/2;
